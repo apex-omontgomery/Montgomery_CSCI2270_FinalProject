@@ -1,2 +1,4 @@
 A + B > C + D
-`
+A > D + E
+B > E + F
+E + F > G
