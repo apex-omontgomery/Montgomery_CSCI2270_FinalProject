@@ -25,6 +25,7 @@ struct adj
     int H;
     ver * parent;
     ver * toself;
+    adj(ver* in_toself, ver * in_parent, bool in_diff_side  ): toself(in_toself), parent (in_parent), dif_side (in_diff_side) {}
     friend class graph;
 };
 
@@ -54,7 +55,7 @@ public:
    // void build_graph(const string &);
     void addRXN(const string & ); // allows user input of a single reaction
     void addVertice(const string &, vector <ver*> & );
-    void addAdj( vector < string>, int);
+    void addAdj( vector < ver*>, int);
 
     ver * find_make_av(ver *);
 

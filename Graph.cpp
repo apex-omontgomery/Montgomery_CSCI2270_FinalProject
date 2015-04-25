@@ -189,30 +189,50 @@ void graph::addRXN(const string & reactionLine){
     if (pro_pos > 1){
         addVertice("+", reactionVec);
     }
-    addVertice("+",reactionVec);
+    addVertice("+",reactionVec); // always add plus sign for products
+    addAdj(reactionVec, pro_pos);
 }
-
-
-
-
-
-
-
-
 
 void graph::addVertice(const string & name, vector <ver*> &reactionVec){
     ver temp;
-
     temp.name = name;
-    if (name != "+"){
+    if (name == "+"){
         temp.plussign = true;
     }
     vertices.push_back(temp);
-    reactionVec.push_back(&vertices[vertices.size()-1]);
+
+
+    if (name != "+"){
+        reactionVec.push_back(&vertices[vertices.size()-1]);
+    }
 }
 
-void addAdj( vector < string> splittedVec, int pro_pos){
+void graph::addAdj( vector < ver*> reactionVec, int pro_pos){
+    if (pro_pos == 0){
+        cout << "ooops no reaction" << endl;
+    }
+    else if (pro_pos==1){
 
+        size_t productPlus = vertices.size()-1;
+        adj newadj (&vertices[productPlus], reactionVec[0], 1);
+        reactionVec[0]->adjs.push_back(newadj);
+        for (unsigned int i = 1; i < reactionVec.size(); i++){
+            // point plus sign to products and products to plus sign
+            adj newadj (reactionVec[i], &vertices[productPlus], 0);
+            reactionVec[i]->adjs.push_back(newadj);
+            adj newadj2 (&vertices[productPlus],reactionVec[i], 0);
+            vertices[productPlus].adjs.push_back(newadj);
+        }
+    }
+    else{
+        size_t productPlus = vertices.size()-1; // the other plus sign is productPlus -1.
+       // adj plusadjP( vertices[productPlus-1], nullptr,1);
+
+
+
+
+
+    }
 
 }
 
