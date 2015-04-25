@@ -9,17 +9,17 @@
 #include "Graph.h"
 #include <sstream>
 
-void graph::make_adjs_av( ver * plus )
+void graph::make_adjs_av( ver * plussign )
 {
-    plus->availabe = true;
-    for( size_t i(0); i < plus->adjs.size(); i++)
-        plus->adjs[i].toself->availabe = true;
+    plussign->availabe = true;
+    for( size_t i(0); i < plussign->adjs.size(); i++)
+        plussign->adjs[i].toself->availabe = true;
 }
 
-bool graph::all_av(ver * plus)
+bool graph::all_av(ver * plussign)
 {
-    for( size_t i(0); i < plus->adjs.size(); i++)
-        if(!plus->adjs[i].toself->availabe && plus->adjs[i].dif_side == 0 )
+    for( size_t i(0); i < plussign->adjs.size(); i++)
+        if(!plussign->adjs[i].toself->availabe && plussign->adjs[i].dif_side == 0 )
             return false;
     return true;
 }
@@ -73,7 +73,7 @@ void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*> > 
             {
                 A.visited = 1;
 
-                if( A.toself->plus )
+                if( A.toself->plussign )
                     path.push_back(&A);
 
 
@@ -84,9 +84,9 @@ void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*> > 
                 }
                 else
                 {
-                    if (A.toself->plus && all_av(A.toself))
+                    if (A.toself->plussign && all_av(A.toself))
                         reactionFinder(A.toself, product, paths, found,path);
-                    if(!A.toself->plus)
+                    if(!A.toself->plussign)
                         reactionFinder(A.toself, product, paths, found,path);
                 }
             }
@@ -104,7 +104,7 @@ void graph::print_paths(vector<vector<adj*>> & paths)
         for(adj * step : path )
         {
             cout << "   "<< j << ". ";
-            if( step->parent->plus )
+            if( step->parent->plussign )
             {
                 vector<adj>::iterator rct(step->parent->adjs.begin());
                 for(; rct != step->parent->adjs.end()-1; rct++ )
@@ -116,7 +116,7 @@ void graph::print_paths(vector<vector<adj*>> & paths)
 
             cout << " --> ";//Used catalyst can be reported here: a good way to do that : A + B --Cat--> C + D
 
-            if( step->toself->plus )
+            if( step->toself->plussign )
             {
                 vector<adj>::iterator rct(step->toself->adjs.begin());
                 for(; rct != step->toself->adjs.end()-1; rct++ )
@@ -138,26 +138,82 @@ void graph::print_paths(vector<vector<adj*>> & paths)
 
 }
 
+// this function inputs a const string reference and breaks the reaction text line into a vector of strings. Any + or arrow
+// signs are not added to the vector of strings and instead a simple indice of the first product is saved.
+// For our logic any reaction has at least one plus sign (we set this for products) and if here are more than one reactant
+// we add another plus sign. so if the position of first product is greater than 1 (starting from 0). Then we know we have multiple
+// plus signs for the reaction logic.
 
-void graph::addRXN(string reactionLine){
+
+void graph::addRXN(const string & reactionLine){
     istringstream splitted(reactionLine);
     vector <string> splittedVec;
+    vector <ver*> reactionVec;
+
+
+    int pro_pos(0);
+    int pos(0);
     do {
         string current;
         splitted >> current;
-        splittedVec.push_back(current);
-        cout << "test: " << current << endl;
+        if (current == ">"){
+            pro_pos = pos;
+        }
+
+        else if (current != "+"){
+            splittedVec.push_back(current);
+            pos++;
+        }
     } while(splitted);
 
+    // now we have a vector <r1, r2,... rn, p1, p2,... pn>
+    // and position of p1 (first product)
 
+    // we now need to create a new vector of pointers to the struct ver so we can manipulate the graph.
+    // we find if the new reaction has
 
-}
-void graph::addVertice(string name){
-    ver temp;
-    ver.name = name;
-    if (name == "+"){
-        plus = true;
+    for (string splitted2 : splittedVec){ // creates list of strings from new reaction
+        bool found(0); // initialize
+        for (ver & chem: vertices){
+            if (chem.name == splitted2){
+                found = 1;
+                reactionVec.push_back(&chem);
+                break;
+            }
+        }
+        if (!found){
+                addVertice(splitted2, reactionVec);
+        }
     }
+
+    if (pro_pos > 1){
+        addVertice("+", reactionVec);
+    }
+    addVertice("+",reactionVec);
+}
+
+
+
+
+
+
+
+
+
+void graph::addVertice(const string & name, vector <ver*> &reactionVec){
+    ver temp;
+
+    temp.name = name;
+    if (name != "+"){
+        temp.plussign = true;
+    }
+    vertices.push_back(temp);
+    reactionVec.push_back(&vertices[vertices.size()-1]);
+}
+
+void addAdj( vector < string> splittedVec, int pro_pos){
+
+
 }
 
 

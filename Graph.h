@@ -34,7 +34,7 @@ struct ver // each chemical is a vertex
     string name;//do not initilize the name in case it's a plus sign.
     vector<adj> adjs;
     bool availabe = 0;
-    bool plus;//true if it's a plus
+    bool plussign;//true if it's a plus
 friend class graph;
 };
 
@@ -52,8 +52,9 @@ public:
     vector<vector<adj*> > * reactionGenerator (vector<ver *> &, vector<ver *> & );
     void print_paths(vector<vector<adj*> > &);
    // void build_graph(const string &);
-    void addRXN(string reactionLine); // allows user input of a single reaction
-    void addVertice(string);
+    void addRXN(const string & ); // allows user input of a single reaction
+    void addVertice(const string &, vector <ver*> & );
+    void addAdj( vector < string>, int);
 
     ver * find_make_av(ver *);
 
