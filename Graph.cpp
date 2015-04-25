@@ -7,6 +7,7 @@
 //
 
 #include "Graph.h"
+#include <sstream>
 
 void graph::make_adjs_av( ver * plus )
 {
@@ -37,7 +38,7 @@ ver * graph::find_make_av(ver * reactors)
 }
 vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vector<ver *> & products )
 {
-    
+
     vector<vector<adj*>> * paths = new vector<vector<adj*>>;
     vector<adj*> path;
     for( ver * reactor : reactors )
@@ -50,13 +51,13 @@ vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vecto
                 return nullptr;
         }
     }
-    
+
     return paths;
-    
-    
+
+
 }
 
-void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*>> & paths, bool & found,vector<adj*> & path)
+void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*> > & paths, bool & found,vector<adj*> & path)
 {
         ver * chem = reactors ;
         if(product->name == chem->name)
@@ -65,7 +66,7 @@ void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*>> &
             path.clear();
             found = true;
         }
-        
+
         for( adj & A : chem->adjs )
         {
             if (!A.visited)
@@ -74,8 +75,8 @@ void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*>> &
 
                 if( A.toself->plus )
                     path.push_back(&A);
-                
-                
+
+
                 if (A.dif_side == 1)
                 {
                     make_adjs_av(A.toself);
@@ -112,9 +113,9 @@ void graph::print_paths(vector<vector<adj*>> & paths)
             }
             else
                 cout << step->parent->name;
-            
+
             cout << " --> ";//Used catalyst can be reported here: a good way to do that : A + B --Cat--> C + D
-            
+
             if( step->toself->plus )
             {
                 vector<adj>::iterator rct(step->toself->adjs.begin());
@@ -124,21 +125,44 @@ void graph::print_paths(vector<vector<adj*>> & paths)
             }
             else
                 cout << step->toself->name;
-            
+
             cout << " Change in Enthalpy: " << step->H;  //many other things such as change in S,G, cost etc. can be reported here.
             cout << endl;
             j++;
-            
+
         }
         i++;
         cout << endl; // The total change in H,S,G total cost etc. can be reported here.
     }
-    
-    
+
+
 }
 
-void build_graph(const string & fileD)
-{
-    //build graph using the file directory in the command line
+
+void graph::addRXN(string reactionLine){
+    istringstream splitted(reactionLine);
+    vector <string> splittedVec;
+    do {
+        string current;
+        splitted >> current;
+        splittedVec.push_back(current);
+        cout << "test: " << current << endl;
+    } while(splitted);
+
+
+
 }
+void graph::addVertice(string name){
+    ver temp;
+    ver.name = name;
+    if (name == "+"){
+        plus = true;
+    }
+}
+
+
+//void build_graph(const string & fileD)
+//{
+    //build graph using the file directory in the command line
+//}
 

@@ -43,15 +43,18 @@ friend class graph;
 class graph
 {
 private:
-    
+
     vector<ver> vertices;// vector of chemicals
 public:
     void make_adjs_av( ver * );
     bool all_av ( ver * );
-    void reactionFinder(ver * , ver *,vector<vector<adj*>> &, bool &, vector<adj*> & );
-    vector<vector<adj*>> * reactionGenerator (vector<ver *> &, vector<ver *> & );
-    void print_paths(vector<vector<adj*>> &);
-    void build_graph(const string &);
+    void reactionFinder(ver * , ver *,vector<vector<adj*> > &, bool &, vector<adj*> & );
+    vector<vector<adj*> > * reactionGenerator (vector<ver *> &, vector<ver *> & );
+    void print_paths(vector<vector<adj*> > &);
+   // void build_graph(const string &);
+    void addRXN(string reactionLine); // allows user input of a single reaction
+    void addVertice(string);
+
     ver * find_make_av(ver *);
 
 };
