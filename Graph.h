@@ -23,7 +23,7 @@ struct adj
 {
     bool visited = false;
     bool dif_side = 0 ;
-    int H;
+
     ver * parent;
     ver * toself;
 public:
@@ -46,8 +46,8 @@ friend class graph;
 class graph
 {
 private:
-    
-    vector<ver> vertices;// vector of chemicals
+
+    vector<ver *> vertices;// vector of chemicals
 public:
     void make_adjs_av( ver * );
     bool all_av ( ver * );

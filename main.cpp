@@ -8,37 +8,41 @@
 
 #include <iostream>
 #include "Graph.h"
-int main(int argc, const char * argv[])
+//int main(int argc, const char * argv[])
+int main ()
 {
     graph RG;//RG for Reaction Graph
-    RG.build_graph(argv[1]);
+    //RG.build_graph(argv[1]);
+    const string file = "reactionlist.txt";
+    RG.build_graph(file);
     bool repeat(1);
+
     while(repeat)
     {
         cout << "Enter the name of the chemicals you wish to use:" << endl;
         vector<ver *> reactors;
-        
-        
-        
+
+
+
         //handle the input and put each name in a block in a vector: reactors;
-        
-    
-        
-        
+
+
+
+
         cout << "Enter the name of the products you wish to obtain:" << endl;
         vector<ver *> products;
 
-        
-        
-        
-        
-        
+
+
+
+
+
         //handle the input and put each name in a block in a vector: products;
-        
-        
-        
-        
-        
+
+
+
+
+
         vector<vector<adj*>> * Paths = RG.reactionGenerator(reactors, products);
         if( Paths != nullptr )
             RG.print_paths(*Paths);
@@ -49,6 +53,6 @@ int main(int argc, const char * argv[])
         if( repeat )
             RG.make_default();
     }
-    
+
     return 0;
 }

@@ -1,0 +1,8 @@
+phase I:
+
+Read me- 
+1. One paragraph that contains project summary
+2. Other section heads
+3. Fill out as much as possible in other heads
+
+4. Final file will include all instructions for someone to download and run your code. 
