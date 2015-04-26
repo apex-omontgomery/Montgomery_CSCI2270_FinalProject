@@ -8,12 +8,15 @@
 
 #include "Graph.h"
 #include <sstream>
+#include <fstream>
+#include <string>
 
-void graph::make_adjs_av( ver * plussign )
+
+void graph::make_adjs_av( ver * plus )
 {
-    plussign->availabe = true;
-    for( size_t i(0); i < plussign->adjs.size(); i++)
-        plussign->adjs[i].toself->availabe = true;
+    plus->availabe = true;
+    for( size_t i(0); i < plus->adjs.size(); i++)
+        plus->adjs[i].toself->availabe = true;
 }
 
 bool graph::all_av(ver * plussign)
@@ -23,6 +26,7 @@ bool graph::all_av(ver * plussign)
             return false;
     return true;
 }
+
 ver * graph::find_make_av(ver * reactors)
 {
     ver * found(nullptr);
@@ -36,13 +40,15 @@ ver * graph::find_make_av(ver * reactors)
     }
     return found;
 }
+
 vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vector<ver *> & products )
 {
-
+    
     vector<vector<adj*>> * paths = new vector<vector<adj*>>;
     vector<adj*> path;
     for( ver * reactor : reactors )
     {
+        reactor->availabe = 1;
         for( ver * product : products )
         {
             bool found(false);
@@ -50,48 +56,49 @@ vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vecto
             if (!found)
                 return nullptr;
         }
+        make_firstState(reactors);
     }
-
+    
     return paths;
-
-
+    
+    
 }
 
-void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*> > & paths, bool & found,vector<adj*> & path)
+void graph::reactionFinder( ver * reactors, ver * product,vector<vector<adj*>> & paths, bool & found,vector<adj*> & path)
 {
-        ver * chem = reactors ;
-        if(product->name == chem->name)
+    ver * chem = reactors ;
+    if(product->name == chem->name)
+    {
+        paths.push_back(path);
+        path.clear();
+        found = true;
+    }
+    
+    for( adj & A : chem->adjs )
+    {
+        if (!A.visited)
         {
-            paths.push_back(path);
-            path.clear();
-            found = true;
-        }
-
-        for( adj & A : chem->adjs )
-        {
-            if (!A.visited)
+            A.visited = 1;
+            
+            if( A.toself->plussign )
+                path.push_back(&A);
+            
+            
+            if (A.dif_side == 1)
             {
-                A.visited = 1;
-
-                if( A.toself->plussign )
-                    path.push_back(&A);
-
-
-                if (A.dif_side == 1)
-                {
-                    make_adjs_av(A.toself);
+                make_adjs_av(A.toself);
+                reactionFinder(A.toself, product, paths, found,path);
+            }
+            else
+            {
+                if (A.toself->plussign && all_av(A.toself))
                     reactionFinder(A.toself, product, paths, found,path);
-                }
-                else
-                {
-                    if (A.toself->plussign && all_av(A.toself))
-                        reactionFinder(A.toself, product, paths, found,path);
-                    if(!A.toself->plussign)
-                        reactionFinder(A.toself, product, paths, found,path);
-                }
+                if(!A.toself->plussign)
+                    reactionFinder(A.toself, product, paths, found,path);
             }
         }
-
+    }
+    
 }
 
 void graph::print_paths(vector<vector<adj*>> & paths)
@@ -113,9 +120,9 @@ void graph::print_paths(vector<vector<adj*>> & paths)
             }
             else
                 cout << step->parent->name;
-
+            
             cout << " --> ";//Used catalyst can be reported here: a good way to do that : A + B --Cat--> C + D
-
+            
             if( step->toself->plussign )
             {
                 vector<adj>::iterator rct(step->toself->adjs.begin());
@@ -125,127 +132,151 @@ void graph::print_paths(vector<vector<adj*>> & paths)
             }
             else
                 cout << step->toself->name;
-
+            
             cout << " Change in Enthalpy: " << step->H;  //many other things such as change in S,G, cost etc. can be reported here.
             cout << endl;
             j++;
-
+            
         }
         i++;
         cout << endl; // The total change in H,S,G total cost etc. can be reported here.
     }
-
-
 }
 
-// this function inputs a const string reference and breaks the reaction text line into a vector of strings. Any + or arrow
-// signs are not added to the vector of strings and instead a simple indice of the first product is saved.
-// For our logic any reaction has at least one plus sign (we set this for products) and if here are more than one reactant
-// we add another plus sign. so if the position of first product is greater than 1 (starting from 0). Then we know we have multiple
-// plus signs for the reaction logic.
+void graph::make_firstState(vector<ver *> & reactors)
+{
+    bool is_reactor(0);
+    for( ver & chem : vertices )
+    {
+        for( ver * reactor : reactors )
+            if( reactor->name == chem.name )
+            {
+                is_reactor = 1;
+                break;
+            }
+            else
+                chem.availabe = 0;
+        for( adj & adjchem : chem.adjs )
+            adjchem.visited = 0;
+    }
+}
 
+void graph::make_default()
+{
+    for( ver & chem : vertices )
+    {
+        chem.availabe = 0;
+        for( adj & adjchem : chem.adjs )
+            adjchem.visited = 0;
+    }
+}
 
-void graph::addRXN(const string & reactionLine){
-    istringstream splitted(reactionLine);
+void graph::addRXN(const string & reactionLine)
+{
+    stringstream splitted(reactionLine);
     vector <string> splittedVec;
-
-
     int pro_pos(0);
     int pos(0);
     do {
         string current;
-        splitted >> current;
-        if (current == ">"){
+        splitted >> current ;
+        if(current == ">" )
             pro_pos = pos;
-        }
-
-        else if (current != "+"){
+        else if( current != "+" )
+        {
             splittedVec.push_back(current);
             pos++;
         }
-    } while(splitted);
-
-
-    // now we have a vector <r1, r2,... rn, p1, p2,... pn>
-    // and position of p1 (first product)
-
-    // we now need to create a new vector of pointers to the struct ver so we can manipulate the graph.
-    // we find if the new reaction has
-    vector <ver*> reactionVec;
-    for (string splitted2 : splittedVec){ // creates list of strings from new reaction
-        bool found(0); // initialize
-        for (ver & chem: vertices){
-            if (chem.name == splitted2){
-                found = 1;
+    } while(!splitted.eof());
+    
+    vector<ver *> reactionVec;
+    for( string splitted2 : splittedVec )
+    {
+        bool found(0);
+        for( ver & chem : vertices )
+        {
+            if ( chem.name == splitted2 )
+            {
                 reactionVec.push_back(&chem);
+                found = 1;
                 break;
             }
         }
-        if (!found){
-                //cout << splitted2 << endl;
-                addVertice(splitted2, reactionVec);
-        }
+        if( !found )
+            addVertice(splitted2,reactionVec);
     }
-
-    if (pro_pos > 1){
-        addVertice("+", reactionVec);
-    }
-    addVertice("+",reactionVec); // always add plus sign for products
-
-    for (unsigned int i = 0; i < reactionVec.size(); i++){
-    cout << reactionVec.at(i)->plussign << endl;
-    }
-
-
-   // addAdj(reactionVec, pro_pos);
+    if( pro_pos > 1 )
+        addVertice("+",reactionVec);
+    addVertice("+",reactionVec);
+    addAdj(reactionVec, pro_pos);
 }
 
-void graph::addVertice(const string & name, vector <ver*> &reactionVec){
+void graph::addVertice(const string & name,vector<ver *> & reactionVec )
+{
     ver temp;
     temp.name = name;
-    if (name == "+"){
+    if (name == "+")
         temp.plussign = true;
-    }
     vertices.push_back(temp);
-
-
-    if (name != "+"){
+    if (name != "+")
         reactionVec.push_back(&vertices[vertices.size()-1]);
-    }
 }
 
-void graph::addAdj( vector < ver*> reactionVec, int pro_pos){
-    if (pro_pos == 0){
-        cout << "ooops no reaction" << endl;
-    }
-    else if (pro_pos==1){
-
-        size_t productPlus = vertices.size()-1;
-        adj newadj (&vertices[productPlus], reactionVec[0], 1);
-        reactionVec[0]->adjs.push_back(newadj);
-        for (unsigned int i = 1; i < reactionVec.size(); i++){
-            // point plus sign to products and products to plus sign
-            adj newadj (reactionVec[i], &vertices[productPlus], 0);
-            reactionVec[i]->adjs.push_back(newadj);
-            adj newadj2 (&vertices[productPlus],reactionVec[i], 0);
-            vertices[productPlus].adjs.push_back(newadj);
+void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos )
+{
+    
+    size_t productPlus(vertices.size()-1);
+    if( pro_pos == 1 )
+    {
+        adj Plusadj(reactionVec[productPlus], reactionVec[0], 1);
+        reactionVec[0]->adjs.push_back(Plusadj);
+        for (size_t i(1); i < reactionVec.size(); i++)
+        {
+            adj chemadj(reactionVec[i],nullptr, 0);
+            vertices[productPlus].adjs.push_back(chemadj);
+            adj plusadj(&vertices[productPlus], nullptr, 0);
+            reactionVec[i]->adjs.push_back(plusadj);
         }
+        
     }
-    else{
-        size_t productPlus = vertices.size()-1; // the other plus sign is productPlus -1.
-       // adj plusadjP( vertices[productPlus-1], nullptr,1);
-
-
-
-
-
+    else
+    {
+        adj plusadjP( &vertices[productPlus], &vertices[productPlus-1], 1);
+        vertices[productPlus-1].adjs.push_back(plusadjP);
+        for (size_t i(0); i < pro_pos; i++)
+        {
+            adj chemadj(reactionVec[i],nullptr, 0);
+            reactionVec[i]->adjs.push_back(chemadj);
+            adj plusadjR(&vertices[productPlus-1],nullptr, 0);
+            reactionVec[i]->adjs.push_back(plusadjR);
+        }
+        for (size_t i(pro_pos); i < reactionVec.size(); i++)
+        {
+            adj chemadj(reactionVec[i],nullptr, 0);
+            reactionVec[i]->adjs.push_back(chemadj);
+            adj plusadjP(&vertices[productPlus], reactionVec[i], 0);
+            reactionVec[i]->adjs.push_back(plusadjP);
+        }
+        
+        
+        
+        
     }
-
+    
 }
-
-
-//void build_graph(const string & fileD)
-//{
-    //build graph using the file directory in the command line
-//}
+void graph::build_graph(const string & fileD)
+{
+    string word;
+    ifstream input_stream (fileD);
+    if (!input_stream)
+        cout << "Could not open the file!" << endl;
+    
+    else
+        while (getline(input_stream, word))
+            addRXN(word);
+    
+    input_stream.close();
+    return;
+    
+}
 

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 
+
 using namespace std;
 
 
@@ -25,7 +26,8 @@ struct adj
     int H;
     ver * parent;
     ver * toself;
-    adj(ver* in_toself, ver * in_parent, bool in_diff_side  ): toself(in_toself), parent (in_parent), dif_side (in_diff_side) {}
+public:
+    adj(ver * in_toself, ver * in_parent, bool in_dif_side ): toself(in_toself), parent(in_parent), dif_side(in_dif_side) {}
     friend class graph;
 };
 
@@ -35,7 +37,7 @@ struct ver // each chemical is a vertex
     string name;//do not initilize the name in case it's a plus sign.
     vector<adj> adjs;
     bool availabe = 0;
-    bool plussign = 0;//true if it's a plus
+    bool plussign = false;//true if it's a plus
 friend class graph;
 };
 
@@ -44,21 +46,21 @@ friend class graph;
 class graph
 {
 private:
-
+    
     vector<ver> vertices;// vector of chemicals
 public:
     void make_adjs_av( ver * );
     bool all_av ( ver * );
-    void reactionFinder(ver * , ver *,vector<vector<adj*> > &, bool &, vector<adj*> & );
-    vector<vector<adj*> > * reactionGenerator (vector<ver *> &, vector<ver *> & );
-    void print_paths(vector<vector<adj*> > &);
-   // void build_graph(const string &);
-    void addRXN(const string & ); // allows user input of a single reaction
-    void addVertice(const string &, vector <ver*> & );
-    void addAdj( vector < ver*>, int);
-
+    void reactionFinder(ver * , ver *,vector<vector<adj*>> &, bool &, vector<adj*> & );
+    vector<vector<adj*>> * reactionGenerator (vector<ver *> &, vector<ver *> & );
+    void print_paths(vector<vector<adj*>> &);
+    void build_graph(const string &);
+    void make_firstState(vector<ver *> &);
     ver * find_make_av(ver *);
-
+    void make_default();
+    void addRXN(const string & );
+    void addVertice(const string &,vector<ver *> &);
+    void addAdj(vector<ver *> & reactionVec, const int & pro_pos);
 };
 
 
