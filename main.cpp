@@ -27,6 +27,10 @@ int main(int argc, const char * argv[])
 {
 
     //RG.build_graph(argv[1]);
+    RG.addRXN("A + B > C + D");
+
+
+    #if 0
     bool repeat(1);
     while(repeat)
     {
@@ -62,7 +66,7 @@ int main(int argc, const char * argv[])
         cout << "Do you want to try one more time? 0 for no, 1 for yes: ";
         cin >> repeat;
     }
-
+    #endif
 
 }
 

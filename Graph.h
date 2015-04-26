@@ -35,7 +35,7 @@ struct ver // each chemical is a vertex
     string name;//do not initilize the name in case it's a plus sign.
     vector<adj> adjs;
     bool availabe = 0;
-    bool plussign;//true if it's a plus
+    bool plussign = 0;//true if it's a plus
 friend class graph;
 };
 

@@ -148,7 +148,6 @@ void graph::print_paths(vector<vector<adj*>> & paths)
 void graph::addRXN(const string & reactionLine){
     istringstream splitted(reactionLine);
     vector <string> splittedVec;
-    vector <ver*> reactionVec;
 
 
     int pro_pos(0);
@@ -166,12 +165,13 @@ void graph::addRXN(const string & reactionLine){
         }
     } while(splitted);
 
+
     // now we have a vector <r1, r2,... rn, p1, p2,... pn>
     // and position of p1 (first product)
 
     // we now need to create a new vector of pointers to the struct ver so we can manipulate the graph.
     // we find if the new reaction has
-
+    vector <ver*> reactionVec;
     for (string splitted2 : splittedVec){ // creates list of strings from new reaction
         bool found(0); // initialize
         for (ver & chem: vertices){
@@ -182,6 +182,7 @@ void graph::addRXN(const string & reactionLine){
             }
         }
         if (!found){
+                //cout << splitted2 << endl;
                 addVertice(splitted2, reactionVec);
         }
     }
@@ -190,7 +191,13 @@ void graph::addRXN(const string & reactionLine){
         addVertice("+", reactionVec);
     }
     addVertice("+",reactionVec); // always add plus sign for products
-    addAdj(reactionVec, pro_pos);
+
+    for (unsigned int i = 0; i < reactionVec.size(); i++){
+    cout << reactionVec.at(i)->plussign << endl;
+    }
+
+
+   // addAdj(reactionVec, pro_pos);
 }
 
 void graph::addVertice(const string & name, vector <ver*> &reactionVec){
