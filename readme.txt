@@ -39,3 +39,4 @@ Open Issues and Bugs:
 
 -- multiple reactants gives an issue with ++ in the output
 -- if the desired product comes before a interim reaction when inputting file this will not give a solution
+-- sort chemical output by name alphabetically for readability
