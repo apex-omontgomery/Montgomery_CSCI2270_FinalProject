@@ -23,11 +23,12 @@ struct adj
 {
     bool visited = false;
     bool dif_side = 0 ;
-
+    int H;
     ver * parent;
     ver * toself;
 public:
     adj(ver * in_toself, ver * in_parent, bool in_dif_side ): toself(in_toself), parent(in_parent), dif_side(in_dif_side) {}
+    adj(): toself(nullptr), parent(nullptr) {}
     friend class graph;
 };
 
@@ -35,7 +36,7 @@ public:
 struct ver // each chemical is a vertex
 {
     string name;//do not initilize the name in case it's a plus sign.
-    vector<adj> adjs;
+    vector<adj *> adjs;
     bool availabe = 0;
     bool plussign = false;//true if it's a plus
 friend class graph;
@@ -46,12 +47,12 @@ friend class graph;
 class graph
 {
 private:
-
+    static int plusCounter;
     vector<ver *> vertices;// vector of chemicals
 public:
     void make_adjs_av( ver * );
     bool all_av ( ver * );
-    void reactionFinder(ver * , ver *,vector<vector<adj*>> &, bool &, vector<adj*> & );
+    void reactionFinder(ver * , ver *,vector<vector<adj*>> &, vector<adj*> &, ver *,vector<adj*> );
     vector<vector<adj*>> * reactionGenerator (vector<ver *> &, vector<ver *> & );
     void print_paths(vector<vector<adj*>> &);
     void build_graph(const string &);
@@ -60,7 +61,13 @@ public:
     void make_default();
     void addRXN(const string & );
     void addVertice(const string &,vector<ver *> &);
-    void addAdj(vector<ver *> & reactionVec, const int & pro_pos);
+    void addAdj(vector<ver *> & , const int & , ver *, ver *);
+    void namesList(vector<ver *> &);
+    bool inPath( vector<adj*> &, adj *);
+    bool isReactor ( ver * , ver * );
+    ver * sameGroup( vector<ver *>  &, const int &, bool );
+    void block_formerStep(ver * chem,ver * formerStep);
+    
 };
 
 
