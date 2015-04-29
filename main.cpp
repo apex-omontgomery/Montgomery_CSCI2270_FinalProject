@@ -9,39 +9,53 @@
 #include <iostream>
 #include "Graph.h"
 //int main(int argc, const char * argv[])
-int main ()
+int main()
 {
     graph RG;//RG for Reaction Graph
     //RG.build_graph(argv[1]);
-    const string file = "reactionlist.txt";
-    RG.build_graph(file);
+    RG.build_graph("reactionlist.txt");
     bool repeat(1);
+    vector<ver *> names;
+    RG.namesList(names);
+    for( size_t i(0); i < names.size(); i++ )
+    {
+        cout << i+1 << ". ";
+        cout << names[i]->name << endl;
+    }
 
     while(repeat)
     {
-        cout << "Enter the name of the chemicals you wish to use:" << endl;
+        cout << "From the printed list, Enter the chemicals' codes you wish to use. Enter 0 when you are finished." << endl;
         vector<ver *> reactors;
+        size_t i;
+        cin >> i;
+        while(i == 0)
+        {
+            cout << "You should choose at least one chemical as reactors. Enter the chemicals' code you wish to use."<< endl;
+            cin >> i;
+        }
 
+        while( i != 0 )
+        {
+            reactors.push_back(names[i-1]);
+            cin >> i;
+        }
 
-
-        //handle the input and put each name in a block in a vector: reactors;
-
-
-
-
-        cout << "Enter the name of the products you wish to obtain:" << endl;
+        cout << "Now enter the products' codes you wish to obtain:" << endl;
         vector<ver *> products;
+        size_t j;
+        cin >> j;
+        while(j == 0)
+        {
+            cout << "You should choose at least one chemical as products. Enter the chemicals' code you wish to obtain."<< endl;
+            cin >> j;
+        }
 
-
-
-
-
-
-        //handle the input and put each name in a block in a vector: products;
-
-
-
-
+        while( j != 0 )
+        {
+            products.push_back(names[j-1]);
+            cin >> j;
+        }
 
         vector<vector<adj*>> * Paths = RG.reactionGenerator(reactors, products);
         if( Paths != nullptr )
