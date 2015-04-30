@@ -6,5 +6,5 @@ ethene + H2 > ethane
 ethene + H2O > ethanol
 ethanol > methoxymethane
 ethane + H+ > ethanoic acid
-ethanoic acid + methanol > methylethanoate
+ethanoicAcid + methanol > methylethanoate
 ethene  + OH- > ethane-1,2-diol
