@@ -36,31 +36,9 @@ Paths:
 The basic foundation is a vertex on a graph for each chemical and each plus sign. Each vertex has a name, (which for plus signs will be a number) vector of adjacencies, a boolean for availability, and a boolean if it is a plus-sign. The adjacency structure has a boolean for visited, boolean to denote if the adjecent is on the opposite side of reaction, and two pointers: parent and toself. The funcionality of these objects will be explained below. 
 If in a side of a reaction the is more than one chemical (like A + B >...), the chemicals will be connected with a not directed edge to the plus sign and then a directed edge will be pointing to the other side of the reaction from that plus sign.
 
-*In  A + B > C we have A - + - C (the dashes indicate edges) and the plus sign is then connected to C with a onr way edge:
+You can find a good illustration of the graph in : https://github.com/wimo7083/Montgomery_CSCI2270_FinalProject/blob/master/Graph.pdf
 
-A
-
-)
-
-(+) -> C
-
-)
-
-B
-
-*In C > D, we have no plus signs:
-
-A
-
-)
-
-(+) -> C -> D
-
-)
-
-B
-
-You can find a better illustration in : 
+In the picture, the dife_side boolean in blue edges is true and for the grey edges is false.
      
 
 This program will allow a text file of chemical reactions in this format "C1 + C2 > C3 + C4" with n chemicals on each side and n = positive integer > 0. The code requires plus sign between chemicals on each side and arrow of this form ">" . When the chemicals are added to the graph you can select desired product and desired input. This will give one path.
