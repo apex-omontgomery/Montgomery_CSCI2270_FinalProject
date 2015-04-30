@@ -37,6 +37,7 @@ The basic foundation is a vertex on a graph for each chemical and each plus sign
 If in a side of a reaction the is more than one chemical (like A + B >...), the chemicals will be connected with a not directed edge to the plus sign and then a directed edge will be pointing to the other side of the reaction from that plus sign.
 
 *In  A + B > C we have A - + - C (the dashes indicate edges) and the plus sign is then connected to C with a onr way edge:
+
 A
 
 )
@@ -47,6 +48,7 @@ A
 
 B
 *In C > D, we have no plus signs:
+
 A
 
 )
