@@ -57,7 +57,7 @@ public:
     void print_paths(vector<vector<adj*>> &);
     void build_graph(const string &);
     void make_firstState(vector<ver *> &);
-    ver * find_make_av(ver *);
+    void makeReactors_av(vector<ver *>&);
     void make_default();
     void addRXN(const string & );
     void addVertice(const string &,vector<ver *> &);
@@ -67,7 +67,9 @@ public:
     bool isReactor ( ver * , ver * );
     ver * sameGroup( vector<ver *>  &, const int &, bool );
     void block_formerStep(ver * chem,ver * formerStep);
-    
+    void refine(vector<adj*>&);
+    bool isUsed( ver * , ver * );
+
 };
 
 

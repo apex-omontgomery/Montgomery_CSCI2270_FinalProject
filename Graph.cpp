@@ -10,9 +10,8 @@
 #include <sstream>
 #include <fstream>
 #include <string>
-//things we could change: 1. useless loops 2.
-int graph::plusCounter(1);
 
+int graph::plusCounter(1);
 void graph::namesList(vector<ver *> & list)
 {
     for( size_t i(0); i < vertices.size(); i++ )
@@ -36,21 +35,64 @@ bool graph::all_av(ver * plussign)
     return true;
 }
 
-ver * graph::find_make_av(ver * reactors)
+void graph::makeReactors_av(vector<ver *>& reactors)
 {
-    ver * found(nullptr);
-    for( size_t i(0); i < vertices.size(); i++)
-    {
-        if( vertices[i]->name == reactors->name )
-        {
-            found = vertices[i];// this should be a vector of pointers and we will add founds to the vector.
-            found->availabe = 1;
-        }
-    }
-    return found;
+    for( ver * chem : reactors )
+        chem->availabe = 1;
 }
+bool graph::isUsed( ver * side1, ver * side2 )
+{
+    if( side1->plussign && side2->plussign )
+    {
+        if(side2 == side1)
+            return true;
+        else
+            for( adj * neighbour1 : side1->adjs )
+                for( adj * neighbour2 : side2->adjs )
+                {
+                    if( !neighbour1->dif_side && !neighbour2->dif_side && neighbour1->toself == neighbour2->toself )
+                        return true;
+                }
 
-
+            
+    }
+    
+    else if(!side1->plussign && !side2->plussign)
+    {
+        if(side1 == side2)
+            return true;
+    }
+    else if(!side2->plussign)
+            for( adj * neighbour : side2->adjs )
+            {
+                if( !neighbour->dif_side && neighbour->toself == side1 )
+                    return true;
+            }
+    else if (!side1->plussign)
+            for( adj * neighbour : side1->adjs )
+            {
+                if( !neighbour->dif_side && neighbour->toself == side2 )
+                    return true;
+            }
+    return false;
+}
+void graph::refine(vector<adj *> & path)
+{
+    for( size_t p(path.size()-2); p != -1; p--)
+        {
+            bool used(0);
+            vector<adj*>::iterator pos(path.begin()+p);
+            for( size_t r(p+1); r < path.size(); r++)
+            {
+                used = isUsed(path[r]->parent,path[p]->toself);
+                if(used)
+                    break;
+            }
+            if(!used)
+                path.erase(pos);
+        }
+    
+}
 vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vector<ver *> & products )
 {
     
@@ -58,60 +100,67 @@ vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vecto
     vector<adj*> path;
     for( ver * reactor : reactors )
     {
-        reactor->availabe = 1;
         for( ver * product : products )
+        {
             reactionFinder(reactor, product, *paths,path,nullptr,path);
+            path.clear();
+            make_firstState(reactors);
+            if(!paths->empty())
+                refine(paths->back());
+        }
         
-        make_firstState(reactors);
     }
     
     return paths;
     
     
 }
+
 void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & paths, vector<adj*> & path, ver * formerStep,vector<adj*> divergedFrom)
 {
-    ver * chem = reactor;
-    if(product->name == chem->name && !path.empty() )
+
+    if(product->name == reactor->name && !path.empty() )
     {
         paths.push_back(path);
         path.clear();
     }
     else
-        for( adj *& A : chem->adjs )
+        for( adj *& A : reactor->adjs )
         {
             if( !A->dif_side && formerStep != nullptr  )
-                block_formerStep(chem,formerStep);
+                block_formerStep(reactor,formerStep);
             if (!A->visited && !inPath(path, A))
             {
                 if( !A->dif_side )
                     A->visited = 1;
                 
-                if (A->dif_side && !isReactor(chem, product))
+                if (A->dif_side && !isReactor(reactor, product))
                 {
                     path = divergedFrom;
                     path.push_back(A);
                     divergedFrom = path;
                     make_adjs_av(A->toself);
-                    reactionFinder(A->toself, product, paths,path,chem,divergedFrom);
+                    reactionFinder(A->toself, product, paths,path,reactor,divergedFrom);
                 }
                 else
                 {
                     if (A->toself->plussign && all_av(A->toself))
-                        reactionFinder(A->toself, product, paths,path,chem,divergedFrom);
+                        reactionFinder(A->toself, product, paths,path,reactor,divergedFrom);
                     if(!A->toself->plussign)
-                        reactionFinder(A->toself, product, paths,path,chem,divergedFrom);
+                        reactionFinder(A->toself, product, paths,path,reactor,divergedFrom);
                 }
             }
         }
     
 }
 
-void graph::print_paths(vector<vector<adj*>> & paths)
+void graph::print_paths(vector<vector<adj*>> & paths )
 {
     int i(1);
     if( paths.empty() )
-        cout<<"There is no way to achieve that!"<<endl;
+    {
+        cout<<"You can't have the products you want from the reactors you provided"<<endl;
+    }
     else
         cout << "Paths: " << endl;
     for( vector<adj*> & path : paths )
@@ -341,7 +390,7 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
     }
     else if( pro_pos == 1 )
     {
-        adj * sameSide_plusAdj = new adj(sameGroupP, reactionVec[0], 0);
+        
         adj * difSide_plusAdj = new adj(sameGroupP, reactionVec[0], 1);
         
         reactionVec[0]->adjs.push_back(difSide_plusAdj);
@@ -349,6 +398,7 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
         if(sameGroupP == vertices[productPlus])
             for (size_t i(1); i < reactionVec.size(); i++)
             {
+                adj * sameSide_plusAdj = new adj(sameGroupP, reactionVec[0], 0);
                 adj * chemadj = new adj(reactionVec[i],nullptr, 0);
                 sameGroupP->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdj);
@@ -357,13 +407,14 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
     }
     else if( pro_pos == reactionVec.size()-1 )
     {
-        adj * sameSide_plusAdj = new adj(sameGroupR, nullptr, 0);
+        
         adj * chemadj = new adj(reactionVec[pro_pos], sameGroupR, 1);
         sameGroupR->adjs.push_back(chemadj);
         
         if(sameGroupR == vertices[productPlus])
             for (size_t i(0); i < pro_pos; i++)
             {
+                adj * sameSide_plusAdj = new adj(sameGroupR, nullptr, 0);
                 adj * chemadj = new adj(reactionVec[i],nullptr, 0);
                 sameGroupR->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdj);
@@ -373,15 +424,13 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
     else
     {
         adj * difSide_plusAdjP = new adj( sameGroupP, sameGroupR, 1);
-        adj * sameSide_plusAdjP = new adj( sameGroupP, sameGroupR, 0);
-        adj * sameSide_plusAdjR = new adj(sameGroupR,nullptr, 0);
-        
         sameGroupR->adjs.push_back(difSide_plusAdjP);
         
         
         if(sameGroupR == vertices[productPlus-1])
             for (size_t i(0); i < pro_pos; i++)
             {
+                adj * sameSide_plusAdjR = new adj(sameGroupR,nullptr, 0);
                 adj * chemadj=  new adj(reactionVec[i],nullptr, 0);
                 sameGroupR->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdjR);
@@ -389,6 +438,7 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
         if(sameGroupP == vertices[productPlus])
             for (size_t i(pro_pos); i < reactionVec.size(); i++)
             {
+                adj * sameSide_plusAdjP = new adj( sameGroupP, sameGroupR, 0);
                 adj * chemadj = new adj(reactionVec[i],nullptr, 0);
                 sameGroupP->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdjP);
@@ -438,6 +488,7 @@ void graph::block_formerStep(ver * chem,ver * formerStep)
         if( formerStep == A->toself )
             A->visited = 1;
 }
+
 
 
 
