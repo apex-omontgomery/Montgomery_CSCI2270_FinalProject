@@ -38,15 +38,23 @@ If in a side of a reaction the is more than one chemical (like A + B >...), the 
 
 *In  A + B > C we have A - + - C (the dashes indicate edges) and the plus sign is then connected to C with a onr way edge:
 A
+
 )
+
 + -> C
+
 )
+
 B
 *In C > D, we have no plus signs:
 A
+
 )
+
 + -> C -> D
+
 )
+
 B
 You can find a better illustration in : 
      
