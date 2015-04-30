@@ -1,3 +1,10 @@
-A + B > C + D
-A > B
-G + H > E
+ethene > Poly(ethene)
+ethene + Br2 > 1,2-dibromoethane
+ethene + HCl > chloroethane
+ethane + Cl2 > chloroethane
+ethene + H2 > ethane
+ethene + H2O > ethanol
+ethanol > methoxymethane
+ethane + H+ > ethanoic acid
+ethanoic acid + methanol > methylethanoate
+ethene  + OH- > ethane-1,2-diol
