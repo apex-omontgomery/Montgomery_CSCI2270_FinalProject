@@ -19,6 +19,7 @@ F + G > I + Product
 and the user tells the program that he has 'Reactor' and wants to get 'Product' the output of the program will be:
 
 Paths: 
+
 1 :
    1. Reactor --> B + C + D
    2. B + D --> E
