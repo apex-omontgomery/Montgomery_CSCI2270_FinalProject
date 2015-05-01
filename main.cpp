@@ -58,10 +58,10 @@ int main(int argc, const char * argv[])
             products.push_back(names[j-1]);
             cin >> j;
         }
-
+        
         vector<vector<adj*>> * Paths = RG.reactionGenerator(reactors, products);
         if( Paths != nullptr )
-            RG.print_paths(*Paths);
+            RG.print_paths(*Paths,products,reactors);
         else
             cout << "There is not a set of reactions to obtain desired chemicals."<<endl;
         cout << "Do you want to try one more time? 0 for no, 1 for yes: ";
