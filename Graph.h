@@ -69,7 +69,6 @@ public:
     void block_formerStep(ver * chem,ver * formerStep);
     void refine(vector<adj*>&);
     bool isUsed( ver * , ver * );
-    void rearrange();
 
 };
 
