@@ -215,7 +215,7 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
                         else
                             r++;
                     }
-                    if(!found)
+                    if(!found && !alreadythere(group[c], youneed))
                         youneed.push_back(group[c]);
                 }
                 
@@ -227,7 +227,7 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
                 for( ver * reactor : reactors)
                     if(step->parent == reactor)
                         found = 1;
-                if(!found)
+                if(!found && !alreadythere(step->parent, youneed))
                     youneed.push_back(step->parent);
             }
             
@@ -264,6 +264,13 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
     }
     
     
+}
+bool graph::alreadythere(ver * chem, vector<ver *> & youneed)
+{
+    for( ver * inchem : youneed )
+        if(chem == inchem)
+            return true;
+    return false;
 }
 void graph::print_paths(vector<vector<adj*>> & paths, vector<ver *> & products, vector <ver *> & reactors)
 {
