@@ -1,75 +1,78 @@
 //
-//  main.cpp
+//  Vertex.h
 //  ReactionGenerator
 //
 //  Created by Saman Moein on 4/21/15.
 //  Copyright (c) 2015 Saman Moein. All rights reserved.
 //
 
+#ifndef __ReactionGenerator__Graph__
+#define __ReactionGenerator__Graph__
+
 #include <iostream>
-#include "Graph.h"
+#include <vector>
 
-//int main(int argc, const char * argv[])
-int main()
+
+using namespace std;
+
+
+struct ver;
+
+/*  adjacents to a chemical can be either the other reactors in a reaction or another group of products. if there is more than one reactor or product we will use a dummy node ( wroking as the plus sign in the reaction ) to connect all the chemicals. So in A+B -> C+D, we have (A) - (+) - (B) and (C) - (+) - (D) and there is a pointer from the first (+) to the second. */
+struct adj
 {
-    graph RG;//RG for Reaction Graph
-    RG.build_graph("/home/user/Desktop/Montgomery_CSCI2270_FinalProject/reactionlist.txt");
-    bool repeat(1);
-    vector <ver *> names;
-    RG.namesList(names);
-    for( size_t i(0); i < names.size(); i++ )
-    {
-        cout << i+1 << ". ";
-        cout << names[i]->name << endl;
-    }
+    bool visited = false;
+    bool dif_side = 0 ;
+    int H;
+    ver * parent;
+    ver * toself;
+public:
+    adj(ver * in_toself, ver * in_parent, bool in_dif_side ): toself(in_toself), parent(in_parent), dif_side(in_dif_side) {}
+    adj(): toself(nullptr), parent(nullptr) {}
+    friend class graph;
+};
 
-    while(repeat)
-    {
-        cout << "From the printed list, Enter the chemicals' codes you wish to use. Enter 0 when you are finished." << endl;
-        vector<ver *> reactors;
-        size_t i;
-        cin >> i;
-        while(i == 0)
-        {
-            cout << "You should choose at least one chemical as reactors. Enter the chemicals' code you wish to use."<< endl;
-            cin >> i;
-        }
 
-        while( i != 0 )
-        {
-            reactors.push_back(names[i-1]);
-            cin >> i;
-        }
-        RG.makeReactors_av(reactors);
-
-        cout << "Now enter the products' codes you wish to obtain:" << endl;
-        vector<ver *> products;
-        size_t j;
-        cin >> j;
-        while(j == 0)
-        {
-            cout << "You should choose at least one chemical as products. Enter the chemicals' code you wish to obtain."<< endl;
-            cin >> j;
-        }
-
-        while( j != 0 )
-        {
-            products.push_back(names[j-1]);
-            cin >> j;
-        }
-
-        vector<vector<adj*>> * Paths = RG.reactionGenerator(reactors, products);
-        if( Paths != nullptr )
-            RG.print_paths(*Paths);
-        else
-            cout << "There is not a set of reactions to obtain desired chemicals."<<endl;
-        cout << "Do you want to try one more time? 0 for no, 1 for yes: ";
-        cin >> repeat;
-        if( repeat )
-            RG.make_default();
-    }
+struct ver // each chemical is a vertex
+{
+    string name;//do not initilize the name in case it's a plus sign.
+    vector<adj *> adjs;
+    bool availabe = 0;
+    bool plussign = false;//true if it's a plus
+friend class graph;
+};
 
 
 
-    return 0;
-}
+class graph
+{
+private:
+    static int plusCounter;
+    vector<ver *> vertices;// vector of chemicals
+public:
+    void make_adjs_av( ver * );
+    bool all_av ( ver * );
+    void reactionFinder(ver * , ver *,vector<vector<adj*>> &, vector<adj*> &, ver *,vector<adj*> );
+    vector<vector<adj*>> * reactionGenerator (vector<ver *> &, vector<ver *> & );
+    void print_paths(vector<vector<adj*>> &);
+    void build_graph(const string &);
+    void make_firstState(vector<ver *> &);
+    void makeReactors_av(vector<ver *>&);
+    void make_default();
+    void addRXN(const string & );
+    void addVertice(const string &,vector<ver *> &);
+    void addAdj(vector<ver *> & , const int & , ver *, ver *);
+    void namesList(vector<ver *> &);
+    bool inPath( vector<adj*> &, adj *);
+    bool isReactor ( ver * , ver * );
+    ver * sameGroup( vector<ver *>  &, const int &, bool );
+    void block_formerStep(ver * chem,ver * formerStep);
+    void refine(vector<adj*>&);
+    bool isUsed( ver * , ver * );
+
+};
+
+
+
+
+#endif /* defined(__ReactionGenerator__Graph__) */
