@@ -8,12 +8,10 @@
 
 #include <iostream>
 #include "Graph.h"
-//int main(int argc, const char * argv[])
-int main()
+int main(int argc, const char * argv[])
 {
     graph RG;//RG for Reaction Graph
-    RG.build_graph("reactionlist.txt");
-    //RG.build_graph(argv[1]);
+    RG.build_graph(argv[1]);
     bool repeat(1);
     vector<ver *> names;
     RG.namesList(names);
@@ -22,7 +20,7 @@ int main()
         cout << i+1 << ". ";
         cout << names[i]->name << endl;
     }
-
+    
     while(repeat)
     {
         cout << "From the printed list, Enter the chemicals' codes you wish to use. Enter 0 when you are finished." << endl;
@@ -34,14 +32,14 @@ int main()
             cout << "You should choose at least one chemical as reactors. Enter the chemicals' code you wish to use."<< endl;
             cin >> i;
         }
-
+        
         while( i != 0 )
         {
             reactors.push_back(names[i-1]);
             cin >> i;
         }
         RG.makeReactors_av(reactors);
-
+        
         cout << "Now enter the products' codes you wish to obtain:" << endl;
         vector<ver *> products;
         size_t j;
@@ -51,7 +49,7 @@ int main()
             cout << "You should choose at least one chemical as products. Enter the chemicals' code you wish to obtain."<< endl;
             cin >> j;
         }
-
+        
         while( j != 0 )
         {
             products.push_back(names[j-1]);
@@ -68,6 +66,8 @@ int main()
         if( repeat )
             RG.make_default();
     }
-
+    
+    
+    
     return 0;
 }
