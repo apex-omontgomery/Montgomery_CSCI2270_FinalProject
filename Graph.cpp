@@ -76,7 +76,7 @@ bool graph::isUsed( ver * side1, ver * side2 )
             }
     return false;
 }
-void graph::refine(vector<adj *> & path)
+void graph::refine(vector<adj *> & path )
 {
     for( size_t p(path.size()-2); p != -1; p--)
         {
@@ -450,6 +450,7 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
 
 void graph::build_graph(const string & fileD)
 {
+    int i;
     string word;
     ifstream input_stream (fileD);
     if (!input_stream)
