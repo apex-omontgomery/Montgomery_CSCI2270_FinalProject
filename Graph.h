@@ -71,6 +71,7 @@ public:
     bool isUsed( ver * , ver * );
     void rearrange();
     void  giveSuggestions(vector<ver *> &,vector <ver *> &);
+    bool alreadythere(ver *, vector<ver*> &);
 };
 
 
