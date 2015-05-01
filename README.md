@@ -79,7 +79,7 @@ G
 The basic foundation is a vertex on a graph for each chemical and each plus sign. Each vertex has a name, (which for plus signs will be a number) vector of adjacencies, a boolean for availability, and a boolean if it is a plus-sign. The adjacency structure has a boolean for visited, boolean to denote if the adjecent is on the opposite side of reaction, and two pointers: parent and toself. The funcionality of these objects will be explained below. 
 If in a side of a reaction the is more than one chemical (like A + B >...), the chemicals will be connected with a not directed edge to the plus sign and then a directed edge will be pointing to the other side of the reaction from that plus sign.
 
-You can find a good illustration of the graph and explenation of how the graph is built ins : https://github.com/wimo7083/Montgomery_CSCI2270_FinalProject/blob/master/Graph.pdf
+You can find a good illustration of the graph and explenation of how the graph is built in : https://github.com/wimo7083/Montgomery_CSCI2270_FinalProject/blob/master/Graph.pdf
 
 
      
