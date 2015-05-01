@@ -457,7 +457,7 @@ void graph::rearrange()//Sort the graph in alphabetical order.
  addRXN, also uses the function sameGroup two times: one for the group of reactions and one for the group of products in the vector it has made. 
  sameGroup function -simply put- determines if a group chemicals are already being used in the graph, For example:
  In : (A + B + C - > D and E + F -> A + B + C) we have three groups: (A,B,C), (D), (E,F) and the first one is used two times, and we don’t want to make new vertices for it. 
- and also we want (E,F) to point to the same plus sign in A + B + C -> D.
+ and also we want (E,F) to point to the same plus sign in A + B + C -> D. Also Note that in: A + B > G, (A,B) is a new group with a new plus sign vertex connecting them together.
  addRXN calls addVertice and addAdj. addVertice is not complicated, addAdj is: using the information from what we got calling sameGroup once for reactors and once for products it connects the vertices together.
  In addAdj we use pro_pos to determine what kind of reaction we are dealing with, pro_pos is where products start in the reactionVec; the vector of chemicals in a given reaction.
  if reactionVec.size is 2 it means the reaction is something like this : A → B
