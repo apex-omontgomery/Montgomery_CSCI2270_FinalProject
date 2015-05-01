@@ -22,7 +22,7 @@ void graph::make_adjs_av( ver * plus )
 
 bool graph::all_av(ver * plussign)
 {
- for( size_t i(0); i < plussign->adjs.size(); i++)
+    for( size_t i(0); i < plussign->adjs.size(); i++)
         if(!plussign->adjs[i]->toself->availabe && !plussign->adjs[i]->dif_side )
             return false;
     return true;
@@ -71,8 +71,8 @@ bool graph::isUsed( ver * side1, ver * side2 )
                     if( !neighbour1->dif_side && !neighbour2->dif_side && neighbour1->toself == neighbour2->toself )
                         return true;
                 }
-
-            
+        
+        
     }
     
     else if(!side1->plussign && !side2->plussign)
@@ -81,34 +81,34 @@ bool graph::isUsed( ver * side1, ver * side2 )
             return true;
     }
     else if(!side2->plussign)
-            for( adj * neighbour : side2->adjs )
-            {
-                if( !neighbour->dif_side && neighbour->toself == side1 )
-                    return true;
-            }
+        for( adj * neighbour : side2->adjs )
+        {
+            if( !neighbour->dif_side && neighbour->toself == side1 )
+                return true;
+        }
     else if (!side1->plussign)
-            for( adj * neighbour : side1->adjs )
-            {
-                if( !neighbour->dif_side && neighbour->toself == side2 )
-                    return true;
-            }
+        for( adj * neighbour : side1->adjs )
+        {
+            if( !neighbour->dif_side && neighbour->toself == side2 )
+                return true;
+        }
     return false;
 }
 void graph::refine(vector<adj *> & path )
 {
     for( size_t p(path.size()-2); p != -1; p--)
+    {
+        bool used(0);
+        vector<adj*>::iterator pos(path.begin()+p);
+        for( size_t r(p+1); r < path.size(); r++)
         {
-            bool used(0);
-            vector<adj*>::iterator pos(path.begin()+p);
-            for( size_t r(p+1); r < path.size(); r++)
-            {
-                used = isUsed(path[r]->parent,path[p]->toself);
-                if(used)
-                    break;
-            }
-            if(!used)
-                path.erase(pos);
+            used = isUsed(path[r]->parent,path[p]->toself);
+            if(used)
+                break;
         }
+        if(!used)
+            path.erase(pos);
+    }
     
 }
 vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vector<ver *> & products )
@@ -129,14 +129,16 @@ vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vecto
         
     }
     
+    
     return paths;
     
     
 }
 
+
 void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & paths, vector<adj*> & path, ver * formerStep,vector<adj*> divergedFrom)
 {
-
+    
     if(product->name == reactor->name && !path.empty() )
     {
         paths.push_back(path);
@@ -171,14 +173,106 @@ void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & 
         }
     
 }
-
-void graph::print_paths(vector<vector<adj*>> & paths )
+void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
+{
+    int i(1);
+    vector<vector<adj *>> * paths = reactionGenerator(vertices, products);
+    
+    cout << endl;
+    cout << "Suggested Paths: " << endl;
+    for( vector<adj*> & path : *paths )
+    {
+        
+        cout << i << " :" << endl;//These can be sorted by total cost,number of reactions, change in H,S,G etc. USING A TREE.
+        int j(1);
+        vector<ver *> youneed;
+        for(adj * step : path )
+        {
+            cout << "   "<< j << ". ";
+            if( step->parent->plussign )
+            {
+                vector<ver*> group;
+                vector<adj*>::iterator rct(step->parent->adjs.begin());
+                for(; rct != step->parent->adjs.end(); rct++ )
+                    if( !(*rct)->dif_side )
+                        group.push_back((*rct)->toself);
+            
+                vector<ver*>::iterator member(group.begin());
+                for(; member != group.end()-1; member++ )
+                    cout << (*member)->name << " + ";
+                cout << (*member)->name;
+                size_t c(0);
+                for(; c < group.size(); c++ )
+                {
+                    bool found(0);
+                    size_t r(0);
+                    for( ver * reactor : reactors){
+                        if(group[c] == reactor)
+                        {
+                            found = 1;
+                            break;
+                        }
+                        else
+                            r++;
+                    }
+                    if(!found)
+                        youneed.push_back(group[c]);
+                }
+                
+            }
+            else
+            {
+                cout << step->parent->name;
+                bool found(0);
+                for( ver * reactor : reactors)
+                    if(step->parent == reactor)
+                        found = 1;
+                if(!found)
+                    youneed.push_back(step->parent);
+            }
+            
+            
+            cout << " --> ";//Used catalyst can be reported here: a good way to do that : A + B --Cat--> C + D
+            
+            if( step->toself->plussign )
+            {
+                vector<ver*> group;
+                vector<adj*>::iterator rct(step->toself->adjs.begin());
+                for(; rct != step->toself->adjs.end(); rct++ )
+                    if( !(*rct)->dif_side )
+                        group.push_back((*rct)->toself);
+                
+                vector<ver*>::iterator member(group.begin());
+                for(; member != group.end()-1; member++ )
+                    cout << (*member)->name << " + ";
+                cout << (*member)->name;
+                
+            }
+            else
+                cout << step->toself->name;
+            
+            cout << endl;
+            j++;
+            
+        }
+        i++;
+        cout << endl;
+        cout << "For this path you need these chemicals besides what you already have:"<<endl;
+        for(ver * chem : youneed)
+            cout<< chem->name <<endl;
+        cout << endl;
+    }
+    
+    
+}
+void graph::print_paths(vector<vector<adj*>> & paths, vector<ver *> & products, vector <ver *> & reactors)
 {
     int i(1);
     cout << endl;
     if( paths.empty() )
     {
         cout<<"You can't have the products you want from the reactors you provided"<<endl;
+        giveSuggestions(products,reactors);
     }
     else
         cout << "Paths: " << endl;
@@ -375,40 +469,40 @@ ver * graph::sameGroup(vector<ver *> & reactionVec, const int & pro_pos, bool P)
         return reactionVec.back();
     else
     {
-    for( adj * maybeUnique : reactionVec[mybeginning]->adjs )
-    {
-        for( size_t j(mybeginning+1); j < myend; j++ )
+        for( adj * maybeUnique : reactionVec[mybeginning]->adjs )
         {
-            some_share = 0;
-            for( size_t k(0); k < reactionVec[j]->adjs.size(); k++ )
-                if( maybeUnique == reactionVec[j]->adjs[k] )
-                {
-                    J = j;
-                    K = k;
-                    sharedPlus = reactionVec[j]->adjs[k]->toself;
-                    some_share = 1;
+            for( size_t j(mybeginning+1); j < myend; j++ )
+            {
+                some_share = 0;
+                for( size_t k(0); k < reactionVec[j]->adjs.size(); k++ )
+                    if( maybeUnique == reactionVec[j]->adjs[k] )
+                    {
+                        J = j;
+                        K = k;
+                        sharedPlus = reactionVec[j]->adjs[k]->toself;
+                        some_share = 1;
+                        break;
+                    }
+                if( some_share == 0 )
                     break;
-                }
-            if( some_share == 0 )
-                break;
+            }
         }
-    }
-    
-    int counter(0);
-    
-    if( sharedPlus != nullptr )
-        for( adj * neighbour : sharedPlus->adjs )
-            if(!neighbour->dif_side)
-                for( adj * neighbour2 : neighbour->toself->adjs )
-                    if( neighbour2->toself == sharedPlus )
-                        counter++;
-    if (counter > pro_pos)
-        sharedPlus = nullptr;
-    
-    if( sharedPlus != nullptr )
-        return  reactionVec[J]->adjs[K]->toself;
-    else
-        return nullptr;
+        
+        int counter(0);
+        
+        if( sharedPlus != nullptr )
+            for( adj * neighbour : sharedPlus->adjs )
+                if(!neighbour->dif_side)
+                    for( adj * neighbour2 : neighbour->toself->adjs )
+                        if( neighbour2->toself == sharedPlus )
+                            counter++;
+        if (counter > pro_pos)
+            sharedPlus = nullptr;
+        
+        if( sharedPlus != nullptr )
+            return  reactionVec[J]->adjs[K]->toself;
+        else
+            return nullptr;
     }
     
 }
@@ -534,6 +628,7 @@ void graph::rearrange(){
     vertices = modified;
     
 }
+
 
 
 
