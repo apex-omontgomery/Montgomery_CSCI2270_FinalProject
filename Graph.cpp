@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <string.h>
 
 int graph::plusCounter(1);
 void graph::namesList(vector<ver *> & list)
@@ -54,9 +55,9 @@ bool graph::isUsed( ver * side1, ver * side2 )
                         return true;
                 }
 
-            
+
     }
-    
+
     else if(!side1->plussign && !side2->plussign)
     {
         if(side1 == side2)
@@ -91,11 +92,11 @@ void graph::refine(vector<adj *> & path )
             if(!used)
                 path.erase(pos);
         }
-    
+
 }
 vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vector<ver *> & products )
 {
-    
+
     vector<vector<adj*>> * paths = new vector<vector<adj*>>;
     vector<adj*> path;
     for( ver * reactor : reactors )
@@ -108,13 +109,46 @@ vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vecto
             if(!paths->empty())
                 refine(paths->back());
         }
-        
+
     }
-    
+
     return paths;
-    
-    
+
+
 }
+
+void graph::rearrange(){
+    vector<ver *> modified;
+    for (unsigned int i =0; i < vertices.size(); i++){
+        if (!vertices[i]->plussign){
+            modified.push_back(vertices[i]);
+            vertices.erase(vertices.begin() +i);
+            i--;
+        }
+    }
+    bool swapped= true;
+    ver * temp;
+    while (swapped){
+        swapped = false;
+        for (unsigned int i = 0; i < modified.size()-1; i++){
+            if (strcmp(modified[i]->name.c_str(), modified[i+1]->name.c_str() ) > 0){
+                temp = modified[i];
+                modified[i]= modified[i+1];
+                modified[i+1]=  temp;
+                swapped = true;
+                //cout << i << endl;
+            }
+        }
+    }
+    for( unsigned int i = 0; i < vertices.size(); i++){
+        modified.push_back(vertices[i]);
+    }
+    vertices = modified;
+
+}
+
+
+
 
 void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & paths, vector<adj*> & path, ver * formerStep,vector<adj*> divergedFrom)
 {
@@ -133,7 +167,7 @@ void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & 
             {
                 if( !A->dif_side )
                     A->visited = 1;
-                
+
                 if (A->dif_side && !isReactor(reactor, product))
                 {
                     path = divergedFrom;
@@ -151,7 +185,7 @@ void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & 
                 }
             }
         }
-    
+
 }
 
 void graph::print_paths(vector<vector<adj*>> & paths )
@@ -165,7 +199,7 @@ void graph::print_paths(vector<vector<adj*>> & paths )
         cout << "Paths: " << endl;
     for( vector<adj*> & path : paths )
     {
-        
+
         cout << i << " :" << endl;//These can be sorted by total cost,number of reactions, change in H,S,G etc. USING A TREE.
         int j(1);
         for(adj * step : path )
@@ -178,7 +212,7 @@ void graph::print_paths(vector<vector<adj*>> & paths )
                 for(; rct != step->parent->adjs.end(); rct++ )
                     if( !(*rct)->dif_side )
                         group.push_back((*rct)->toself);
-                
+
                 vector<ver*>::iterator member(group.begin());
                 for(; member != group.end()-1; member++ )
                     cout << (*member)->name << " + ";
@@ -186,9 +220,9 @@ void graph::print_paths(vector<vector<adj*>> & paths )
             }
             else
                 cout << step->parent->name;
-            
+
             cout << " --> ";//Used catalyst can be reported here: a good way to do that : A + B --Cat--> C + D
-            
+
             if( step->toself->plussign )
             {
                 vector<ver*> group;
@@ -196,20 +230,20 @@ void graph::print_paths(vector<vector<adj*>> & paths )
                 for(; rct != step->toself->adjs.end(); rct++ )
                     if( !(*rct)->dif_side )
                         group.push_back((*rct)->toself);
-                
+
                 vector<ver*>::iterator member(group.begin());
                 for(; member != group.end()-1; member++ )
                     cout << (*member)->name << " + ";
                 cout << (*member)->name;
-                
+
             }
             else
                 cout << step->toself->name;
-            
+
             //cout << " Change in Enthalpy: " << step->H;  //many other things such as change in S,G, cost etc. can be reported here.
             cout << endl;
             j++;
-            
+
         }
         i++;
         cout << endl; // The total change in H,S,G total cost etc. can be reported here.
@@ -278,17 +312,17 @@ void graph::addRXN(const string & reactionLine)
                 found = 1;
                 break;
             }
-            
+
         }
         if( !found )
             addVertice(splitted2,reactionVec);
         pos++;
     }
-    
-    
+
+
     sameGroupR = sameGroup(reactionVec, pro_pos,0);
     sameGroupP = sameGroup(reactionVec, pro_pos,1);
-    
+
     if( pro_pos > 1 && !sameGroupR)
     {
         addVertice("+",reactionVec);
@@ -313,7 +347,7 @@ void graph::addVertice(const string & name,vector<ver *> & reactionVec )
     }
     else
         temp->name = name;
-    
+
     vertices.push_back(temp);
     if (name != "+")
         reactionVec.push_back(temp);
@@ -321,7 +355,7 @@ void graph::addVertice(const string & name,vector<ver *> & reactionVec )
 ver * graph::sameGroup(vector<ver *> & reactionVec, const int & pro_pos, bool P)
 {
     bool some_share(0);
-    
+
     size_t myend;
     size_t mybeginning;
     if(P)//product
@@ -361,9 +395,9 @@ ver * graph::sameGroup(vector<ver *> & reactionVec, const int & pro_pos, bool P)
                 break;
         }
     }
-    
+
     int counter(0);
-    
+
     if( sharedPlus != nullptr )
         for( adj * neighbour : sharedPlus->adjs )
             if(!neighbour->dif_side)
@@ -372,17 +406,17 @@ ver * graph::sameGroup(vector<ver *> & reactionVec, const int & pro_pos, bool P)
                         counter++;
     if (counter > pro_pos)
         sharedPlus = nullptr;
-    
+
     if( sharedPlus != nullptr )
         return  reactionVec[J]->adjs[K]->toself;
     else
         return nullptr;
     }
-    
+
 }
 void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * sameGroupR, ver * sameGroupP){
     size_t productPlus(vertices.size()-1);
-    
+
     if( reactionVec.size() == 2 )
     {
         adj * chemadj = new adj(reactionVec[1], reactionVec[0], 1);
@@ -390,11 +424,11 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
     }
     else if( pro_pos == 1 )
     {
-        
+
         adj * difSide_plusAdj = new adj(sameGroupP, reactionVec[0], 1);
-        
+
         reactionVec[0]->adjs.push_back(difSide_plusAdj);
-        
+
         if(sameGroupP == vertices[productPlus])
             for (size_t i(1); i < reactionVec.size(); i++)
             {
@@ -403,14 +437,14 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
                 sameGroupP->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdj);
             }
-        
+
     }
     else if( pro_pos == reactionVec.size()-1 )
     {
-        
+
         adj * chemadj = new adj(reactionVec[pro_pos], sameGroupR, 1);
         sameGroupR->adjs.push_back(chemadj);
-        
+
         if(sameGroupR == vertices[productPlus])
             for (size_t i(0); i < pro_pos; i++)
             {
@@ -419,14 +453,14 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
                 sameGroupR->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdj);
             }
-        
+
     }
     else
     {
         adj * difSide_plusAdjP = new adj( sameGroupP, sameGroupR, 1);
         sameGroupR->adjs.push_back(difSide_plusAdjP);
-        
-        
+
+
         if(sameGroupR == vertices[productPlus-1])
             for (size_t i(0); i < pro_pos; i++)
             {
@@ -444,8 +478,8 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
                 reactionVec[i]->adjs.push_back(sameSide_plusAdjP);
             }
     }
-    
-    
+
+
 }
 
 void graph::build_graph(const string & fileD)
@@ -455,13 +489,14 @@ void graph::build_graph(const string & fileD)
     ifstream input_stream (fileD);
     if (!input_stream)
         cout << "Could not open the file!" << endl;
-    
+
     else
         while (getline(input_stream, word))
             addRXN(word);
-    
-    
+
+
     input_stream.close();
+    rearrange();
     return;
 }
 bool graph::inPath( vector<adj*> & path, adj * A)
