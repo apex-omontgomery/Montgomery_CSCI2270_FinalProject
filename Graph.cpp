@@ -170,11 +170,11 @@ The reactions found in our reactionFinder are logical, however some of them are 
  consider this set of reactions:
  Reactor -> Junk
  Reactor -> Product
- Our graph is sorted alphabetically. Since Junk starts with J and Product starts with P the algorithm, starting from Reactor’s adjacents,  will first go to J puts into path and then goes to ‘Product’ 
+ Our graph is sorted alphabetically. Since Junk starts with J and Product starts with P, the algorithm, starting from Reactor’s adjacents,  will first go to J puts it into path and then goes to ‘Product’. 
  and then we will have Reaction -> Junk, Reaction -> Product as a pathway. It is technically a pathway but it’s not smart.
  Refine function omits all these junk reactions. We know that the last reaction in a pathway is going to have the desired product in its products. 
  So we start from the reaction before the last one. We look if any of the products of the reaction is used later in another reaction (this is done by the function isUsed) if it is not used we will delete the reaction.
- Note: The reason for starting from the end of the pathway is that by deleting the very last useless steps, the steps before will show if they are only been used for that useless step or not.*/
+ Note: The reason for starting from the end of the pathway is that by deleting the very last useless steps, the steps before them will show if they are actually only being only used for a later useless step or not.*/
 void graph::refine(vector<adj *> & path )
 {
     for( size_t p(path.size()-2); p != -1; p--)
