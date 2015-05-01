@@ -34,6 +34,49 @@ Paths:
    4. F --> G
    5. F + G --> I + Product
 
+In case there were no pathways with the input reactors the program will give suggestions. So for instance if user only has 'B' as a reactor and wants 'Product', this will be the output:
+
+You can't have the products you want from the reactors you provided.
+
+Suggested Paths: 
+1 :
+   1. E + Reactor --> F
+   2. F --> G
+   3. F + G --> I + Product
+
+For this path you need these chemicals besides what you already have:
+E
+Reactor
+F
+F
+G
+
+2 :
+   1. G + E --> Product
+
+For this path you need these chemicals besides what you already have:
+G
+E
+
+3 :
+   1. B + R --> F
+   2. F --> G
+   3. F + G --> I + Product
+
+For this path you need these chemicals besides what you already have:
+R
+F
+F
+G
+
+4 :
+   1. F + G --> I + Product
+
+For this path you need these chemicals besides what you already have:
+F
+G
+
+
 The basic foundation is a vertex on a graph for each chemical and each plus sign. Each vertex has a name, (which for plus signs will be a number) vector of adjacencies, a boolean for availability, and a boolean if it is a plus-sign. The adjacency structure has a boolean for visited, boolean to denote if the adjecent is on the opposite side of reaction, and two pointers: parent and toself. The funcionality of these objects will be explained below. 
 If in a side of a reaction the is more than one chemical (like A + B >...), the chemicals will be connected with a not directed edge to the plus sign and then a directed edge will be pointing to the other side of the reaction from that plus sign.
 
