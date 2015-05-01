@@ -49,7 +49,6 @@ For this path you need these chemicals besides what you already have:
 E
 Reactor
 F
-F
 G
 
 2 :
@@ -66,7 +65,6 @@ E
 
 For this path you need these chemicals besides what you already have:
 R
-F
 F
 G
 
