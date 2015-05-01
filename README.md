@@ -39,6 +39,7 @@ In case there were no pathways with the input reactors the program will give sug
 You can't have the products you want from the reactors you provided.
 
 Suggested Paths: 
+
 1 :
    1. E + Reactor --> F
    2. F --> G
