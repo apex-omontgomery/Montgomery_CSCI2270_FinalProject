@@ -340,7 +340,7 @@ void graph::print_paths(vector<vector<adj*>> & paths, vector<ver *> & products, 
     cout << endl;
     if( paths.empty() )
     {
-        cout<<"You can't have the products you want from the reactors you provided"<<endl;
+        cout<<"You can't have the products you want from the reactors you provided."<<endl;
         giveSuggestions(products,reactors);
     }
     else
