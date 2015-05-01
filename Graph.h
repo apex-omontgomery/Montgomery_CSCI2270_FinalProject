@@ -54,7 +54,7 @@ public:
     bool all_av ( ver * );
     void reactionFinder(ver * , ver *,vector<vector<adj*>> &, vector<adj*> &, ver *,vector<adj*> );
     vector<vector<adj*>> * reactionGenerator (vector<ver *> &, vector<ver *> & );
-    void print_paths(vector<vector<adj*>> &);
+    void print_paths(vector<vector<adj*>> &,vector<ver *> &,vector <ver *> &);
     void build_graph(const string &);
     void make_firstState(vector<ver *> &);
     void makeReactors_av(vector<ver *>&);
@@ -70,7 +70,7 @@ public:
     void refine(vector<adj*>&);
     bool isUsed( ver * , ver * );
     void rearrange();
-
+    void  giveSuggestions(vector<ver *> &,vector <ver *> &);
 };
 
 
