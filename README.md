@@ -91,8 +91,7 @@ How to Run:
 1. Download Graph.cpp, Graph.h, ProjectDriver.cpp, reactionlist.txt and move to desired folder.
 2. Open compiler of choice (geany, code blocks, etc).
 3. Locate folder with project files and load main.cpp in compiler.
-3a. Modify file directory in main.cpp to reference "reactionlist.txt" in your computer. See example provided in code.
-4. Compile and run main.cpp
+3a. Enter the file directory as a command line.
 5. Program will load, and create graph with no user input.
 6. Follow directions in user prompt. 
 
