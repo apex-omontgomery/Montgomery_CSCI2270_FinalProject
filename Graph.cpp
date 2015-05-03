@@ -10,13 +10,15 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <cstring>
+
 
 int graph::plusCounter(1);//The plusCounter is used to name our plus signs. the int will be changed to string so that each plus sign has a number a name.
 /* As mentioned in the header file, all the functions from reactionGenerator to make_default do the algorithm to find pathways.
  reactionGenerator, gets reactors and products from the user input and find a pathway from each reactor to each product, using the function reactionFinder.*/
 vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vector<ver *> & products )
 {
-    
+
     vector<vector<adj*>> * paths = new vector<vector<adj*>>;
     vector<adj*> path;
     for( ver * reactor : reactors )
@@ -29,40 +31,40 @@ vector<vector<adj*>> * graph::reactionGenerator (vector<ver *> & reactors, vecto
             if(!paths->empty())
                 refine(paths->back());
         }
-        
+
     }
-    
-    
+
+
     return paths;
-    
-    
+
+
 }
 
-/*reactionFinder gets one reactor and one product from the input list of chemicals by user. 
+/*reactionFinder gets one reactor and one product from the input list of chemicals by user.
 It is a recursive depth-first based search. It also gets a vector of paths and a path. Whenever it finds a path, it will push_back it to the paths vector.
- The two other varibales it gets are formerStep and divergedFrom. formerStep, as the name implies is the former vertex. 
+ The two other varibales it gets are formerStep and divergedFrom. formerStep, as the name implies is the former vertex.
  divergedFrom is a bit more complicated. It is the pathway from which we are diverging, This will be explained in more detail.
  The Algorithm: we start from a reactor, we through all its adjacents. There are two kinds of adjacents: some are in the dif_side others are in the same side of the reaction.
  But before explaining the how the algorithm treats these two cases let us explain something about the structure:
- Because chemicals can be used more than once, being visited for chemicals (vertices) are meaningless here. 
+ Because chemicals can be used more than once, being visited for chemicals (vertices) are meaningless here.
  However, edges representing pathways should have a boolean for them being visited; We don’t want to do the same reaction twice.
- 
+
  Now back to the algorithm,
- 1. If the adjacent is in the same side of the reaction( the dif_side boolean is false ) : 
+ 1. If the adjacent is in the same side of the reaction( the dif_side boolean is false ) :
  block the edge to the former step (if there is one, meaning that it’s not the first step ) and if it’s not visited do either of these:
  -if A, the adjacent is a plus sign and if all the reactors for that plus sign are available, call the reactionFinder function with A as a vertex (A->toself, toself points to the vertex A).
  -else if A is not a plus sign call the reactionFinder with A->toself as the reactor.
- (Note that the first case also needs A to have all available(with the function all_av) reactors. 
+ (Note that the first case also needs A to have all available(with the function all_av) reactors.
  Therefore sometimes neither of these conditions are fulfilled. (when A is a plus sign however the group it is representing is not available therefore it cannot be acceptable as a valid reactor.)
- 
- 2. If A is in the different side: meaning that A is a product or a plus sign representing a group of products, set the path to the ‘divergedFrom’ path, push_back A as a new step in the path, then set divergedFrom to path. 
+
+ 2. If A is in the different side: meaning that A is a product or a plus sign representing a group of products, set the path to the ‘divergedFrom’ path, push_back A as a new step in the path, then set divergedFrom to path.
  (note that divergedFrom is not a single object, there are many divergeFrom objects since the function makes a copy of it.) Make the whole product group available (with function make_av) and then call reactionFinder with A->toself.
- 
+
  Note : Since it would be meaningless to use the final product as a reactor in a new reaction, we also check that the reactor that has the A adjacent, is not the product itself. This is done by the function isReactor.)
     */
 void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & paths, vector<adj*> & path, ver * formerStep,vector<adj*> divergedFrom)
 {
-    
+
     if(product->name == reactor->name && !path.empty() )
     {
         paths.push_back(path);
@@ -77,7 +79,7 @@ void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & 
             {
                 if( !A->dif_side )
                     A->visited = 1;
-                
+
                 if (A->dif_side && !isReactor(reactor, product))
                 {
                     path = divergedFrom;
@@ -95,7 +97,7 @@ void graph::reactionFinder( ver * reactor, ver * product,vector<vector<adj*>> & 
                 }
             }
         }
-    
+
 }
 
 void graph::make_adjs_av( ver * plus )//This makes all the same side adjacents available.
@@ -165,14 +167,14 @@ void graph::make_firstState(vector<ver *> & reactors){
 }
 
 
-/* The task of refine function (which uses isUsed function ) is to refine(!) the pathways and get rid of some useless reactions. 
+/* The task of refine function (which uses isUsed function ) is to refine(!) the pathways and get rid of some useless reactions.
 The reactions found in our reactionFinder are logical, however some of them are unnecessary. The most important case is when there are 'deadends' in our reactions:
  consider this set of reactions:
  Reactor -> Junk
  Reactor -> Product
- Our graph is sorted alphabetically. Since Junk starts with J and Product starts with P, the algorithm, starting from Reactor’s adjacents,  will first go to J puts it into path and then goes to ‘Product’. 
+ Our graph is sorted alphabetically. Since Junk starts with J and Product starts with P, the algorithm, starting from Reactor’s adjacents,  will first go to J puts it into path and then goes to ‘Product’.
  and then we will have Reaction -> Junk, Reaction -> Product as a pathway. It is technically a pathway but it’s not smart.
- Refine function omits all these junk reactions. We know that the last reaction in a pathway is going to have the desired product in its products. 
+ Refine function omits all these junk reactions. We know that the last reaction in a pathway is going to have the desired product in its products.
  So we start from the reaction before the last one. We look if any of the products of the reaction is used later in another reaction (this is done by the function isUsed) if it is not used we will delete the reaction.
  Note: The reason for starting from the end of the pathway is that by deleting the very last useless steps, the steps before them will show if they are actually only being only used for a later useless step or not.*/
 void graph::refine(vector<adj *> & path )
@@ -190,7 +192,7 @@ void graph::refine(vector<adj *> & path )
         if(!used)
             path.erase(pos);
     }
-    
+
 }
 
 bool graph::isUsed( ver * side1, ver * side2 )
@@ -206,10 +208,10 @@ bool graph::isUsed( ver * side1, ver * side2 )
                     if( !neighbour1->dif_side && !neighbour2->dif_side && neighbour1->toself == neighbour2->toself )
                         return true;
                 }
-        
-        
+
+
     }
-    
+
     else if(!side1->plussign && !side2->plussign)
     {
         if(side1 == side2)
@@ -237,12 +239,12 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
 {
     int i(1);
     vector<vector<adj *>> * paths = reactionGenerator(vertices, products);
-    
+
     cout << endl;
     cout << "Suggested Paths: " << endl;
     for( vector<adj*> & path : *paths )
     {
-        
+
         cout << i << " :" << endl;//These can be sorted by total cost,number of reactions, change in H,S,G etc. USING A TREE.
         int j(1);
         vector<ver *> youneed;
@@ -256,7 +258,7 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
                 for(; rct != step->parent->adjs.end(); rct++ )
                     if( !(*rct)->dif_side )
                         group.push_back((*rct)->toself);
-            
+
                 vector<ver*>::iterator member(group.begin());
                 for(; member != group.end()-1; member++ )
                     cout << (*member)->name << " + ";
@@ -278,7 +280,7 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
                     if(!found && !alreadythere(group[c], youneed))
                         youneed.push_back(group[c]);
                 }
-                
+
             }
             else
             {
@@ -290,10 +292,10 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
                 if(!found && !alreadythere(step->parent, youneed))
                     youneed.push_back(step->parent);
             }
-            
-            
+
+
             cout << " --> ";//Used catalyst can be reported here: a good way to do that : A + B --Cat--> C + D
-            
+
             if( step->toself->plussign )
             {
                 vector<ver*> group;
@@ -301,19 +303,19 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
                 for(; rct != step->toself->adjs.end(); rct++ )
                     if( !(*rct)->dif_side )
                         group.push_back((*rct)->toself);
-                
+
                 vector<ver*>::iterator member(group.begin());
                 for(; member != group.end()-1; member++ )
                     cout << (*member)->name << " + ";
                 cout << (*member)->name;
-                
+
             }
             else
                 cout << step->toself->name;
-            
+
             cout << endl;
             j++;
-            
+
         }
         i++;
         cout << endl;
@@ -322,8 +324,8 @@ void graph::giveSuggestions(vector <ver *> & products,vector <ver *> & reactors)
             cout<< chem->name <<endl;
         cout << endl;
     }
-    
-    
+
+
 }
 
 bool graph::alreadythere(ver * chem, vector<ver *> & youneed)
@@ -347,7 +349,7 @@ void graph::print_paths(vector<vector<adj*>> & paths, vector<ver *> & products, 
         cout << "Paths: " << endl;
     for( vector<adj*> & path : paths )
     {
-        
+
         cout << i << " :" << endl;//These can be sorted by total cost,number of reactions, change in H,S,G etc. USING A TREE.
         int j(1);
         for(adj * step : path )
@@ -360,7 +362,7 @@ void graph::print_paths(vector<vector<adj*>> & paths, vector<ver *> & products, 
                 for(; rct != step->parent->adjs.end(); rct++ )
                     if( !(*rct)->dif_side )
                         group.push_back((*rct)->toself);
-                
+
                 vector<ver*>::iterator member(group.begin());
                 for(; member != group.end()-1; member++ )
                     cout << (*member)->name << " + ";
@@ -368,9 +370,9 @@ void graph::print_paths(vector<vector<adj*>> & paths, vector<ver *> & products, 
             }
             else
                 cout << step->parent->name;
-            
+
             cout << " --> ";//Used catalyst can be reported here: a good way to do that : A + B --Cat--> C + D
-            
+
             if( step->toself->plussign )
             {
                 vector<ver*> group;
@@ -378,20 +380,20 @@ void graph::print_paths(vector<vector<adj*>> & paths, vector<ver *> & products, 
                 for(; rct != step->toself->adjs.end(); rct++ )
                     if( !(*rct)->dif_side )
                         group.push_back((*rct)->toself);
-                
+
                 vector<ver*>::iterator member(group.begin());
                 for(; member != group.end()-1; member++ )
                     cout << (*member)->name << " + ";
                 cout << (*member)->name;
-                
+
             }
             else
                 cout << step->toself->name;
-            
+
             //cout << " Change in Enthalpy: " << step->H;  //many other things such as change in S,G, cost etc. can be reported here.
             cout << endl;
             j++;
-            
+
         }
         i++;
         cout << endl; // The total change in H,S,G total cost etc. can be reported here.
@@ -447,16 +449,16 @@ void graph::rearrange()//Sort the graph in alphabetical order.
         modified.push_back(vertices[i]);
     }
     vertices = modified;
-    
+
 }
 
 
 /*These last functions are used for building the graph. This is not a simple graph. There are two kinds of edges ( dif_side or not ) two kinds of vertices (plus sign or not) and reading the file is not easy either.
  The build_graph function reads each line from the file, and calls addRXN with it.
  addRXN creates a vector of chemicals using the line it receives. it also determines what chemicals are the products and what are the reactors.
- addRXN, also uses the function sameGroup two times: one for the group of reactions and one for the group of products in the vector it has made. 
+ addRXN, also uses the function sameGroup two times: one for the group of reactions and one for the group of products in the vector it has made.
  sameGroup function -simply put- determines if a group chemicals are already being used in the graph, For example:
- In : (A + B + C - > D and E + F -> A + B + C) we have three groups: (A,B,C), (D), (E,F) and the first one is used two times, and we don’t want to make new vertices for it. 
+ In : (A + B + C - > D and E + F -> A + B + C) we have three groups: (A,B,C), (D), (E,F) and the first one is used two times, and we don’t want to make new vertices for it.
  and also we want (E,F) to point to the same plus sign in A + B + C -> D. Also Note that in: A + B > G, (A,B) is a new group with a new plus sign vertex connecting them together.
  addRXN calls addVertice and addAdj. addVertice is not complicated, addAdj is: using the information from what we got calling sameGroup once for reactors and once for products it connects the vertices together.
  In addAdj we use pro_pos to determine what kind of reaction we are dealing with, pro_pos is where products start in the reactionVec; the vector of chemicals in a given reaction.
@@ -467,13 +469,13 @@ void graph::rearrange()//Sort the graph in alphabetical order.
  */
 void graph::build_graph(const string & fileD)
 {
-    
+
     int i;
     string word;
     ifstream input_stream (fileD);
     if (!input_stream)
         cout << "Could not open the file!" << endl;
-    
+
     else
     {
         cout << "Reactions :"<<endl;
@@ -524,17 +526,17 @@ void graph::addRXN(const string & reactionLine)
                 found = 1;
                 break;
             }
-            
+
         }
         if( !found )
             addVertice(splitted2,reactionVec);
         pos++;
     }
-    
-    
+
+
     sameGroupR = sameGroup(reactionVec, pro_pos,0);
     sameGroupP = sameGroup(reactionVec, pro_pos,1);
-    
+
     if( pro_pos > 1 && !sameGroupR)
     {
         addVertice("+",reactionVec);
@@ -559,7 +561,7 @@ void graph::addVertice(const string & name,vector<ver *> & reactionVec )
     }
     else
         temp->name = name;
-    
+
     vertices.push_back(temp);
     if (name != "+")
         reactionVec.push_back(temp);
@@ -568,7 +570,7 @@ void graph::addVertice(const string & name,vector<ver *> & reactionVec )
 ver * graph::sameGroup(vector<ver *> & reactionVec, const int & pro_pos, bool P)
 {
     bool some_share(0);
-    
+
     size_t myend;
     size_t mybeginning;
     if(P)//product
@@ -608,9 +610,9 @@ ver * graph::sameGroup(vector<ver *> & reactionVec, const int & pro_pos, bool P)
                     break;
             }
         }
-        
+
         int counter(0);
-        
+
         if( sharedPlus != nullptr )
             for( adj * neighbour : sharedPlus->adjs )
                 if(!neighbour->dif_side)
@@ -619,19 +621,19 @@ ver * graph::sameGroup(vector<ver *> & reactionVec, const int & pro_pos, bool P)
                             counter++;
         if (counter > pro_pos)
             sharedPlus = nullptr;
-        
+
         if( sharedPlus != nullptr )
             return  reactionVec[J]->adjs[K]->toself;
         else
             return nullptr;
     }
-    
+
 }
 
 void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * sameGroupR, ver * sameGroupP)
 {
     size_t productPlus(vertices.size()-1);
-    
+
     if( reactionVec.size() == 2 )
     {
         adj * chemadj = new adj(reactionVec[1], reactionVec[0], 1);
@@ -639,11 +641,11 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
     }
     else if( pro_pos == 1 )
     {
-        
+
         adj * difSide_plusAdj = new adj(sameGroupP, reactionVec[0], 1);
-        
+
         reactionVec[0]->adjs.push_back(difSide_plusAdj);
-        
+
         if(sameGroupP == vertices[productPlus])
             for (size_t i(1); i < reactionVec.size(); i++)
             {
@@ -652,14 +654,14 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
                 sameGroupP->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdj);
             }
-        
+
     }
     else if( pro_pos == reactionVec.size()-1 )
     {
-        
+
         adj * chemadj = new adj(reactionVec[pro_pos], sameGroupR, 1);
         sameGroupR->adjs.push_back(chemadj);
-        
+
         if(sameGroupR == vertices[productPlus])
             for (size_t i(0); i < pro_pos; i++)
             {
@@ -668,14 +670,14 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
                 sameGroupR->adjs.push_back(chemadj);
                 reactionVec[i]->adjs.push_back(sameSide_plusAdj);
             }
-        
+
     }
     else
     {
         adj * difSide_plusAdjP = new adj( sameGroupP, sameGroupR, 1);
         sameGroupR->adjs.push_back(difSide_plusAdjP);
-        
-        
+
+
         if(sameGroupR == vertices[productPlus-1])
             for (size_t i(0); i < pro_pos; i++)
             {
@@ -693,8 +695,8 @@ void graph::addAdj(vector<ver *> & reactionVec, const int & pro_pos , ver * same
                 reactionVec[i]->adjs.push_back(sameSide_plusAdjP);
             }
     }
-    
-    
+
+
 }
 
 
